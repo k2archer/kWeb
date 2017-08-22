@@ -9,14 +9,14 @@ TMP   = ./tmp
 BUILD = ./build
 INCLUDE  = ./include
 
-SERVER_BINARY = $(BUILD)/tcpserv
+SERVER_BINARY = $(BUILD)/tcpserv.exe
 SERVER_OBJECTS = $(TMP)/tcpserv.o
 # $(TMP)/weblib.o 
 
-CLIENT__BINARY = $(BUILD)/tcpcli
+CLIENT__BINARY = $(BUILD)/tcpcli.exe
 CLIENT_OBJECTS = $(TMP)/tcpcli.o
 
-BINARY = $(BUILD)/tcpserv $(BUILD)/tcpcli
+BINARY = $(BUILD)/tcpserv.exe $(BUILD)/tcpcli.exe
 OBJECTS = $(SERVER_OBJECTS) $(CLIENT_OBJECTS)
 
 all: $(SERVER_BINARY) $(CLIENT__BINARY)

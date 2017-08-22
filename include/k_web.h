@@ -236,9 +236,9 @@ void do_cat(char* f, int fd)
 	else if (strcmp(extension, "css") == 0)
 		content = "text/css";
 
-	serve_file(fd, f);
-	close(fd);
-	return;
+	// serve_file(fd, f);
+	// close(fd);
+	// return;
 
 	fpsock = fdopen(fd, "w");
 	fpfile = fopen(f, "r");
