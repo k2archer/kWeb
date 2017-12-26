@@ -28,38 +28,39 @@ print "</td>"
 print "<td style=\"background-color:#EEEEEE;width:400px;\">"
 print "<body>"
 ### 主面板 ###
-#print "脚本名：", sys.argv[0]
-#for i in range(1, len(sys.argv)):
-#    print "参数", i, sys.argv[i]
-test = sys.argv[1].replace('=',' ');
-# print test.replace('&',' ');
-# print "<br>"
 
-# db = MySQLdb.connect("localhost", "root", "", "host_db")
+# db = MySQLdb.connect("127.0.0.1", "root", "", "host_db")
 # cursor = db.cursor()
 # cursor.execute("SELECT VERSION()")
 # data = cursor.fetchone()
 # print "Database version: %s " % data
 # db.close()
-db = MySQLdb.connect("localhost", "root", "", "test");
+
+db = MySQLdb.connect(
+		host='127.0.0.1',
+		port=3307,user='root',
+		passwd='usbw',
+		db='test',
+		charset='utf8')
 cursor = db.cursor()
 cursor.execute("SELECT * FROM users;")
 data = cursor.fetchone()
-# print data
 
-str = sys.argv[1].split('=', 1)
-# print str[0] + " " + str[1]
-# print "<br>"
-request = "SELECT * FROM users where user_name =\'"+ str[1] + "\';"
-# print request
-# print "<br>"
+# sys.argv[1] 的格式 "user=XXXX&pass=XXXX"
+user_argv = sys.argv[1].split('&', 1)
+user_name = user_argv[0].split('=', 1)
+user_pass = user_argv[1].split('=', 1)
+
+request = "SELECT * FROM users where user_name =\'"+ user_name[1] + "\';"
 cursor.execute(request)
 data = cursor.fetchone()
-# print data
-if data:
-	print data[1] + "，你好，欢迎登录。"
+
+if data[1] == user_name[1] and data[2] == user_pass[1]:
+	print data[1]
+	print "，你好，欢迎登录。"
 else:
-	print '用户名无效'
+	print '用户名或密码无效'
+	print '<a href="/index.html">返回</a>'
 
 db.close()
 
