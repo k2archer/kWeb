@@ -206,9 +206,11 @@ void do_exec(char* prog, int fd, char* argc)
 	dup2(fd, 1);
 	dup2(fd, 2);
 	close(fd);
-	execl(prog, prog, argc, NULL);
-	perror(prog);
-
+	char * argv[ ]={"","","",(char *)0};
+	argv[1] = prog;
+	argv[2] = argc;
+	char * env[ ]={"PATH=/bin",0};
+	execve("/bin/bash",argv,env);
 	close(fd);
 	exit(11);
 
@@ -261,36 +263,48 @@ void process_rq(char* rq, int fd)
 	char cmd[BUFSIZE], arg[BUFSIZE];
 	char protocol_version[128];
 	int pid;
-	if ( (pid = fork()) != 0)
+//	if ( (pid = fork()) != 0)
+//		return;
+	if ((pid = fork()) < 0) {
 		return;
+	} else if ( pid == 0) {
+		strcpy(arg, "./");
+		if ( sscanf(rq, "%s %s %s", cmd, arg+2, protocol_version) != 3)
+			exit(19);
 
-	strcpy(arg, "./");
-	if ( sscanf(rq, "%s %s %s", cmd, arg+2, protocol_version) != 3)
-		exit(19);
+		printf("CMD:%s path:%s protocol:%s\n", cmd, arg, protocol_version);
 
-	printf("CMD:%s path:%s protocol:%s\n", cmd, arg, protocol_version);
+		char path[BUFSIZE];
+		char argcs[BUFSIZE];
+		if ( sscanf(arg, "%[^?]?%s", path, argcs) < 1)
+			exit(19);
+		printf("path:%s argcs:%s\n", path, argcs);
 
-	char path[BUFSIZE];
-	char argcs[BUFSIZE];
-	if ( sscanf(arg, "%[^?]?%s", path, argcs) < 1)
-		exit(19);
-	printf("path:%s argcs:%s\n", path, argcs);
+		int ret = strcmp(cmd, "GET");
+		if ( ret != 0)
+			cannot_do(fd);
+		else if ( not_exist(path) )
+			do_404(path, fd);
+		else if ( isadir(path) )
+			do_ls(path, fd);
+		else if ( ends_in_cgi(path) )
+			do_exec(path, fd, argcs);
+		else
+			do_cat(path, fd);
 
-	int ret = strcmp(cmd, "GET");
-	if ( ret != 0)
-		cannot_do(fd);
-	else if ( not_exist(path) )
-		do_404(path, fd);
-	else if ( isadir(path) )
-		do_ls(path, fd);
-	else if ( ends_in_cgi(path) )
-		do_exec(path, fd, argcs);
-	else
-		do_cat(path, fd);
+		printf("OK");
+		// close(fd);
+		int status;
+//		waitpid(pid, &status, 0);
+		exit(11);
+	} else {
+		if (waitpid(pid, NULL, 0) != pid) {                        /* 父进程必须为一代子进程收尸 */
+			printf("fork 1st child_proc success. 1st child_proc killed...\n");
+		}
+		return;
+	}
 
-	// close(fd);
-	int status;
-	waitpid(pid, &status, 0);
-	exit(11);
+
+
 }
 

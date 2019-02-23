@@ -54,8 +54,10 @@ user_pass = user_argv[1].split('=', 1)
 request = "SELECT * FROM users where user_name =\'"+ user_name[1] + "\';"
 cursor.execute(request)
 data = cursor.fetchone()
+user_name[1] = user_name[1].strip()
+user_pass[1] = user_pass[1].strip()
 
-if data[1] == user_name[1] and data[2] == user_pass[1]:
+if data is not None and data[1] == user_name[1] and data[2] == user_pass[1]:
 	print data[1]
 	print "，你好，欢迎登录。"
 else:
