@@ -16,7 +16,7 @@ print "<body>"
 print "<table class=\"center\" width=\"800\" border=\"0\">"
 print "<tr><td colspan=\"2\" style=\"background-color:#FFA500;text-align:center\">"
 # Top面板 #
-print "<h1>Login of Web Page</h1></td></tr>"
+print "<h1>图书管理系统</h1></td></tr>"
 # Top面板结束 #
 print "<tr>"
 print "<td style=\"background-color:#FFD700;height:500px;width:100px;\">"
@@ -75,7 +75,7 @@ print "</td>"
 print "</tr>"
 
 print "<tr><td colspan=\"2\" style=\"background-color:#FFA500;text-align:center;\">"
-print "Copyright 2016&#60;Copyright Pwei&#62;</td></tr>"
+print "Copyright 2019&#60;Copyright k2archer&#62;</td></tr>"
 print "</table>"
 print "</body>"
 print "</html>"
