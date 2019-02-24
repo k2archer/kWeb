@@ -15,6 +15,6 @@ add_executable(kWeb
         include/k_web.h
         include/socklib.h
 
-        src/tcpserv.cc)
+        src/kWeb.cc)
 
 TARGET_LINK_LIBRARIES(kWeb pthread)
