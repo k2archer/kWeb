@@ -2,6 +2,10 @@
 import sys
 import MySQLdb
 
+sys.path.append("./service/v.1.0/user")
+import Config
+import Manager
+
 # print "Content-type:text/html\r\n\r\n"
 print '<html>'
 
@@ -29,44 +33,50 @@ print "<td style=\"background-color:#EEEEEE;width:400px;\">"
 print "<body>"
 ### 主面板 ###
 
-# db = MySQLdb.connect("127.0.0.1", "root", "", "host_db")
-# cursor = db.cursor()
-# cursor.execute("SELECT VERSION()")
-# data = cursor.fetchone()
-# print "Database version: %s " % data
-# db.close()
-
-db = MySQLdb.connect(
-		host='127.0.0.1',
-		port=3307,user='root',
-		passwd='usbw',
-		db='test',
-		charset='utf8')
-cursor = db.cursor()
-cursor.execute("SELECT * FROM users;")
-data = cursor.fetchone()
-
-# sys.argv[1] 的格式 "user=XXXX&pass=XXXX"
-user_argv = sys.argv[1].split('&', 1)
-user_name = user_argv[0].split('=', 1)
-user_pass = user_argv[1].split('=', 1)
-
-request = "SELECT * FROM users where user_name =\'"+ user_name[1] + "\';"
-cursor.execute(request)
-data = cursor.fetchone()
-user_name[1] = user_name[1].strip()
-user_pass[1] = user_pass[1].strip()
-
-if data is not None and data[1] == user_name[1] and data[2] == user_pass[1]:
-	print data[1]
-	print "，你好，欢迎登录。"
-else:
-	print '用户名或密码无效'
-	print '<a href="/index.html">返回</a>'
-
-db.close()
+def send_message(code, message, result):
+    json_body = {"code": code, "message": message, "result": result}
+    print json.dumps(json_body)
+    pass
 
 
+def parse_argv():
+    user_name = None
+    user_pass = None
+    print
+    try:
+        # sys.argv[1] 的格式 "user=XXXX&pass=XXXX"
+        user_argv = sys.argv[1].split('&', 1)
+        user_name = user_argv[0].split('=', 1)
+        user_pass = user_argv[1].split('=', 1)
+    except:
+        send_message("500", "parameter error", "result")
+        exit()
+
+    try:
+        user_name = user_name[1].strip()
+        user_pass = user_pass[1].strip()
+    except:
+        send_message("000", "login analytic ", "result")
+        exit()
+
+    return user_name, user_pass
+    pass
+
+
+def main():
+    user_argv = parse_argv()
+    # print user_argv
+    user_manager = Manager.get_user_manager()
+    login = user_manager.login(user_argv[0], user_argv[1])
+    if login:
+        print user_argv[0]
+        print "，你好，欢迎登录。"
+    else:
+        print '用户名或密码无效'
+    print '<a href="/index.html">返回</a>'
+
+if __name__ == '__main__':
+    main()
 
 ### 主面板结束 ###
 print "</body>"
