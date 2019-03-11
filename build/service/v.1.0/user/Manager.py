@@ -7,10 +7,11 @@ import json
 
 class DataManager:
     db_cursor = None
+    db_helper = None  # type: DatabaseOpenHelper
 
     def __init__(self):
-        db_helper = DatabaseOpenHelper.get_db_helper()
-        self.db_cursor = db_helper.db_cursor
+        self.db_helper = DatabaseOpenHelper.get_db_helper()
+        self.db_cursor = self.db_helper.db_cursor
         pass
 
     def get_orders_list(self, user_name):
@@ -26,26 +27,21 @@ class DataManager:
                          + " FROM " + TableConfig.BookInfo.TABLE_NAME \
                          + " WHERE " + TableConfig.BookInfo.ID + ' IN (' + books_id_sql + ');'
 
+        # self.db_helper._execute(books_name_sql)
         self.db_cursor.execute(books_name_sql)
-        orders_list = self.db_cursor.fetchone()
-        # print json.dump(orders_list)
-        # print orders_list
-
-        # 构造字典
-        json_body = {"code": '200', "message": orders_list, "result": "OK"}
-        # 构造 list
-        # print json_body
-        json_str = json.dumps(json_body)
-        # print json_str
-        return orders_list
+        t = []
+        for item in self.db_cursor.fetchall():
+            t.append(item[0])
+        return tuple(t)
 
 
 class UserManager:
     db_cursor = None
+    db_helper = None
 
     def __init__(self):
-        db_helper = DatabaseOpenHelper.get_db_helper()
-        self.db_cursor = db_helper.db_cursor
+        self.db_helper = DatabaseOpenHelper.get_db_helper()
+        self.db_cursor = self.db_helper.db_cursor
         pass
 
     def login(self, user_name, user_password):
