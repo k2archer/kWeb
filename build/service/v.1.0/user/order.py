@@ -4,10 +4,13 @@ import sys
 import json
 import Manager
 
+reload(sys)  # reload 才能调用 setdefaultencoding 方法
+sys.setdefaultencoding('utf-8')  # 设置 'utf-8'
+
 
 def send_message(code, message, result):
     json_body = {"code": code, "message": message, "result": result}
-    print json.dumps(json_body)
+    print json.dumps(json_body, ensure_ascii=False)  # 强制非 ascii 字符生成相对应的字符编码
     pass
 
 
