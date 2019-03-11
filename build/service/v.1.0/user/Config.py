@@ -12,7 +12,7 @@ class DatabaseConfig:
         pass
 
     DATABASE_NAME = "klibrary"
-    createDatabase = "CREATE DATABASE IF NOT EXISTS " + DATABASE_NAME + ';'
+    createDatabase = "CREATE DATABASE IF NOT EXISTS " + DATABASE_NAME + ' character SET utf8mb4;'
     deleteDatabase = 'DROP DATABASE IF EXISTS ' + DATABASE_NAME + ';'
 
 
