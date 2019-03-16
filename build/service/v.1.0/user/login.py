@@ -40,10 +40,13 @@ def main():
     # print user_argv
     user_manager = Manager.get_user_manager()
     login = user_manager.login(user_argv[0], user_argv[1])
-    if login:
+    if login is None:
+        send_message("300", "login failed", "result")
+        return
+    elif login is True:
         send_message("200", "login succeed", "result")
     else:
-        send_message("500", "login failed", "result")
+        send_message("500", "login error", "result")
     pass
 
 
