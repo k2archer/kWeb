@@ -34,6 +34,18 @@ class DataManager:
             t.append(item[0])
         return tuple(t)
 
+    def get_recommended_list(self, user_name):
+
+        books_sql = "SELECT " + TableConfig.BookInfo.NAME \
+                    + " FROM " + TableConfig.BookInfo.TABLE_NAME + " LIMIT 5;"
+        self.db_cursor.execute(books_sql)
+
+        recommended_list = []
+        for item in self.db_cursor.fetchall():
+            recommended_list.append(item[0])
+        return tuple(recommended_list)
+        pass
+
 
 class UserManager:
     db_cursor = None
@@ -49,6 +61,8 @@ class UserManager:
                     + ' WHERE ' + TableConfig.UserInfo.NAME + ' = ' + '\'' + user_name + '\'' \
                     + ' AND ' + TableConfig.UserInfo.PASSWORD + ' = ' + '\'' + user_password + '\''
         # print login_sql
+
+        self.db_cursor.execute("use klibrary;")
         self.db_cursor.execute(login_sql)
         data = self.db_cursor.fetchone()
         # print data
