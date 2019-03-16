@@ -15,9 +15,7 @@ class DatabaseOpenHelper:
 
     def __init__(self):
         self.connect_database()
-        self.create_database()
-        self.create_tables()
-        self.demo_data()
+        # self.create_database()
 
         pass
 
@@ -26,6 +24,8 @@ class DatabaseOpenHelper:
             host=DatabaseInfo.host, port=DatabaseInfo.port,
             user=DatabaseInfo.user, passwd=DatabaseInfo.password,
             db=DatabaseInfo.name, charset='utf8')
+        self.db_cursor = self.db_connection.cursor()
+        self.db_connection.select_db(Config.DatabaseConfig.DATABASE_NAME)
         return self.db_connection
 
     def create_database(self):
@@ -39,6 +39,8 @@ class DatabaseOpenHelper:
             self._execute(Config.DatabaseConfig.createDatabase)
             # data = self.db_cursor.fetchone()
             # print data
+
+            self.create_tables()
             return self.db_cursor
         pass
 
@@ -52,6 +54,7 @@ class DatabaseOpenHelper:
         self._execute(TableConfig.createBookTable)
         self._execute(TableConfig.createOrderListTable)
 
+        self.demo_data()
         pass
 
     def _execute(self, query):
