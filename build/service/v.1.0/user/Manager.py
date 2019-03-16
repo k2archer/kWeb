@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*
 
+import MySQLdb
 import DatabaseOpenHelper
 from Config import *
 import json
+
+import Logger
 
 
 class DataManager:
@@ -28,11 +31,21 @@ class DataManager:
                          + " WHERE " + TableConfig.BookInfo.ID + ' IN (' + books_id_sql + ');'
 
         # self.db_helper._execute(books_name_sql)
-        self.db_cursor.execute(books_name_sql)
-        t = []
-        for item in self.db_cursor.fetchall():
-            t.append(item[0])
-        return tuple(t)
+
+        book_list = None
+        try:
+            self.db_cursor.execute(books_name_sql)
+            book_list = self.db_cursor.fetchall()
+        except MySQLdb.Error, e:
+            error_message = "Mysql Error %d: %s" % (e.args[0], e.args[1])
+            Logger.get_logger().exception(error_message + '\n' + books_name_sql + '\n')
+            book_list = None
+            pass
+
+        ordered_list = []
+        for item in book_list:
+            ordered_list.append(item[0])
+        return tuple(ordered_list)
 
     def get_recommended_list(self, user_name):
 
@@ -40,8 +53,18 @@ class DataManager:
                     + " FROM " + TableConfig.BookInfo.TABLE_NAME + " LIMIT 5;"
         self.db_cursor.execute(books_sql)
 
+        book_list = None
+        try:
+            self.db_cursor.execute(books_sql)
+            book_list = self.db_cursor.fetchall()
+        except MySQLdb.Error, e:
+            error_message = "Mysql Error %d: %s" % (e.args[0], e.args[1])
+            Logger.get_logger().exception(error_message + '\n' + books_sql + '\n')
+            book_list = None
+            pass
+
         recommended_list = []
-        for item in self.db_cursor.fetchall():
+        for item in book_list:
             recommended_list.append(item[0])
         return tuple(recommended_list)
         pass
@@ -57,16 +80,27 @@ class UserManager:
         pass
 
     def login(self, user_name, user_password):
+        if self.db_cursor is None or self.db_helper is None:
+            return None
+
         login_sql = "SELECT * FROM " + TableConfig.UserInfo.TABLE_NAME \
                     + ' WHERE ' + TableConfig.UserInfo.NAME + ' = ' + '\'' + user_name + '\'' \
                     + ' AND ' + TableConfig.UserInfo.PASSWORD + ' = ' + '\'' + user_password + '\''
         # print login_sql
 
-        self.db_cursor.execute("use klibrary;")
-        self.db_cursor.execute(login_sql)
-        data = self.db_cursor.fetchone()
-        # print data
-        return data is not None
+        data = None
+        try:
+            self.db_cursor.execute(login_sql)
+            data = self.db_cursor.fetchone()
+            # print data
+            data = data is not None
+        except MySQLdb.Error, e:
+            error_message = "Mysql Error %d: %s" % (e.args[0], e.args[1])
+            Logger.get_logger().exception(error_message + '\n' + login_sql + '\n')
+            data = None
+            pass
+
+        return data
         pass
 
 
@@ -85,11 +119,11 @@ def get_data_manager():
 
 
 def main():
-    user_manager = UserManager()
-    user_manager.login("admin", "admin")
-
-    data_manager = DataManager()
-    data_manager.get_orders_list('admin')
+    # user_manager = UserManager()
+    # user_manager.login("admin", "admin")
+    #
+    # data_manager = DataManager()
+    # data_manager.get_orders_list('admin')
 
     pass
 

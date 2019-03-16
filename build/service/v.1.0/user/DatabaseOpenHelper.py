@@ -1,10 +1,12 @@
 ﻿# -*- coding: utf-8 -*
+import logging
 
 import MySQLdb
 import Config
 from Config import DatabaseInfo
 from Config import TableConfig
 from warnings import filterwarnings
+import Logger
 
 filterwarnings('error', category=MySQLdb.Warning)
 
@@ -20,28 +22,37 @@ class DatabaseOpenHelper:
         pass
 
     def connect_database(self):
-        self.db_connection = MySQLdb.connect(
-            host=DatabaseInfo.host, port=DatabaseInfo.port,
-            user=DatabaseInfo.user, passwd=DatabaseInfo.password,
-            db=DatabaseInfo.name, charset='utf8')
-        self.db_cursor = self.db_connection.cursor()
-        self.db_connection.select_db(Config.DatabaseConfig.DATABASE_NAME)
+        try:
+            self.db_connection = MySQLdb.connect(
+                host=DatabaseInfo.host, port=DatabaseInfo.port,
+                user=DatabaseInfo.user, passwd=DatabaseInfo.password,
+                db=DatabaseInfo.name, charset='utf8')
+            self.db_connection.select_db(Config.DatabaseConfig.DATABASE_NAME)
+            self.db_cursor = self.db_connection.cursor()
+        except MySQLdb.Error, e:
+            if e.args[0] == 1049:
+                self.create_database()
+                return
+            error_message = "Mysql Error %d: %s" % (e.args[0], e.args[1])
+            Logger.get_logger().exception(error_message)
+            self.db_cursor = None
+            pass
+
         return self.db_connection
 
     def create_database(self):
         if self.db_connection is None:
             print 'db connect is None'
             return
-        else:
-            # print 'db is connected.'
-            self.db_cursor = self.db_connection.cursor()
-            self._execute(Config.DatabaseConfig.deleteDatabase)
-            self._execute(Config.DatabaseConfig.createDatabase)
-            # data = self.db_cursor.fetchone()
-            # print data
 
-            self.create_tables()
-            return self.db_cursor
+        self.db_cursor = self.db_connection.cursor()
+        self._execute(Config.DatabaseConfig.deleteDatabase)
+        self._execute(Config.DatabaseConfig.createDatabase)
+        # data = self.db_cursor.fetchone()
+        # print data
+
+        self.create_tables()
+        return self.db_cursor
         pass
 
     def create_tables(self):
@@ -63,7 +74,7 @@ class DatabaseOpenHelper:
             self.db_cursor = self.db_connection.cursor()
             self.db_cursor.execute(query)
         except MySQLdb.Warning, w:
-            print str(w)
+            Logger.get_logger().warning("warning: " + str(w))
 
         pass
 
