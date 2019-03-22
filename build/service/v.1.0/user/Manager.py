@@ -26,7 +26,7 @@ class DataManager:
                        + ' FROM ' + TableConfig.Order.TABLE_NAME + ' ' \
                        + ' WHERE ' + TableConfig.UserInfo.ID + ' IN (' + user_id_sql + ')'
 
-        books_name_sql = "SELECT " + TableConfig.BookInfo.NAME \
+        books_name_sql = "SELECT " + TableConfig.BookInfo.NAME + ',' + TableConfig.BookInfo.CODE\
                          + " FROM " + TableConfig.BookInfo.TABLE_NAME \
                          + " WHERE " + TableConfig.BookInfo.ID + ' IN (' + books_id_sql + ');'
 
@@ -44,12 +44,13 @@ class DataManager:
 
         ordered_list = []
         for item in book_list:
-            ordered_list.append(item[0])
+            json_body = {"book_name": item[0], "book_code": item[1]}
+            ordered_list.append(json_body)
         return tuple(ordered_list)
 
     def get_recommended_list(self, user_name):
 
-        books_sql = "SELECT " + TableConfig.BookInfo.NAME \
+        books_sql = "SELECT " + TableConfig.BookInfo.NAME + ',' + TableConfig.BookInfo.CODE \
                     + " FROM " + TableConfig.BookInfo.TABLE_NAME + " LIMIT 5;"
         self.db_cursor.execute(books_sql)
 
@@ -63,9 +64,16 @@ class DataManager:
             book_list = None
             pass
 
+        # book_code = None
+        # json_body = {"book_code": book_code, "book_name": book_list}
+        # print json.dumps(json_body, ensure_ascii=False)  # 强制非 ascii 字符生成相对应的字符编码
+
         recommended_list = []
         for item in book_list:
-            recommended_list.append(item[0])
+            # print item[0]
+            json_body = {"book_name": item[0], "book_code": item[1]}
+            recommended_list.append(json_body)
+        # print recommended_list
         return tuple(recommended_list)
         pass
 
